@@ -1,3 +1,3 @@
 ## BayesianNetworkTuning
 
-In progress.
+User tutorial in progress.
