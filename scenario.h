@@ -1,17 +1,28 @@
 #ifndef SCENARIO_H
 #define SCENARIO_H
 
+#ifndef _OPENMP
+#define _OPENMP
+#endif
+
+
+#if defined(_OPENMP)
+   #include <omp.h>
+#endif
+
+
 #include <string>
 #include <vector>
-#include "ParamReader.h"
+#include <random>
+#include "individual.h"
+#include "paramreader.h"
 
-#pragma once
 
 class Scenario
 {
 public:
 	Scenario();
-	Scenario(const char*  scenario);
+	Scenario(const char* scenario);
 	virtual ~Scenario();
 	ParamReader getParamHeader() const;
 	double getCutOffTime() const;
@@ -22,13 +33,15 @@ public:
 	std::vector<std::string> getTestInstance() const;
 	std::vector<double> getSolutionsTrainInstance() const;
 	std::vector<double> getSolutionsTestInstance() const;
-	//std::vector<std::string> getArgs();
+	Individual *genData() const;
+	
     void setParamHeader(const ParamReader &param);
+	double _cost(const std::vector<size_t> &vector) const;
 
 private:
 	std::string _program;
 	bool _deterministic = true;
-	std::string _overall_obj;
+	std::string _overall_obj = "mean";
 	double _cutoff_time;
 	unsigned _tunerTimeout;
 	std::string _paramfilename;
@@ -39,10 +52,7 @@ private:
 	std::vector<std::string> _test_instances;
 	std::vector<double> _solutions_train_instances;
 	std::vector<double> _solutions_test_instances;
-	//std::vector<std::string> _args;
 	ParamReader _param;
-
-	std::vector<std::string> _split(std::string s, std::string delimiter);
 
 };
 

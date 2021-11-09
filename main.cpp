@@ -1,19 +1,18 @@
 #include <iostream>
-#include <string>
-#include "paramreader.h"
-#include "scenario.h"
 #include "boa.h"
 
-int main(int argc, char* argv[]) {
+
+void test_scenario();
+void test_boa();
+
+int main(int argc, char* argv[]){
 
     int num_arg = 1;
     std::string arg;
 
     std::string scenariofile;
-    int numRun = 0;
-    int seedforParamBRKGA = static_cast<int>(time(nullptr));
+    int njobs = 1;
 
-    int numinstances = 2000;
     unsigned int tuner_timeout = 10;
     double timeout = 0.0;
     double currenttime = 0.0;
@@ -24,60 +23,59 @@ int main(int argc, char* argv[]) {
             num_arg++;
             scenariofile = argv[num_arg];
         }
-        else if (arg == "-numrun") {
+        else if (arg == "-njobs") {
             num_arg++;
-            numRun = std::stoi(argv[num_arg]);
-        }
-        else if (arg == "-seedBRKGA") {
-            num_arg++;
-            seedforParamBRKGA = std::stoi(argv[num_arg]);
-            if (seedforParamBRKGA < 0) {
-                std::cerr << "ERROR: Invalid seed value!" << std::endl;
-                exit(-1);
-            }
+            njobs = std::stoi(argv[num_arg]);
         }
         num_arg++;
     }
 
-    Scenario scenario(scenariofile.c_str());
-    //ParamReader param = scenario.getParamHeader();
-    tuner_timeout = scenario.getTunerTimeout();
+    Scenario *scenario = new Scenario(scenariofile.c_str());
+    //Scenario scenario(scenariofile.c_str());
+    tuner_timeout = scenario->getTunerTimeout();
 
-    std::cout << scenario.getParamHeader().getNumParam() << " parameters in total" << std::endl;
-    std::cout << scenario.getParamHeader().getNumConditionalParam() << " parameters are conditional" << std::endl;
-    std::cout << scenario.getParamHeader().getNumForbiddenCombo() << " parameter combinations are forbidden" << std::endl;
+    std::cout << scenario->getParamHeader().getNumParam() << " parameters in total" << std::endl;
+    std::cout << scenario->getParamHeader().getNumConditionalParam() << " parameters are conditional" << std::endl;
+    std::cout << scenario->getParamHeader().getNumForbiddenCombo() << " parameter combinations are forbidden" << std::endl;
 
-    std::cout << "num_params = " << scenario.getParamHeader().getNumParam() << ", ";
-    std::cout << "num_combos = " << scenario.getParamHeader().getNumCombos() << std::endl;
+    std::cout << "num_params = " << scenario->getParamHeader().getNumParam() << ", ";
+    std::cout << "num_combos = " << scenario->getParamHeader().getNumCombos() << std::endl;
 
-    std::cout << "seed: " << seedforParamBRKGA << std::endl;
+    // std::cout << "seed: " << seedforParam << std::endl;
 
-    std::cout << "Run " << numRun << std::endl;
+    // std::cout << "Run " << numRun << std::endl;
 
-    std::cout << "========================================================" << std::endl;
-    std::cout << "Starting ParamBRKGA for limit of N=" << numinstances << ", and tuner timeout=" << tuner_timeout << ".\nCurrent CPU time = " << currenttime << ", this run goes until "<< timeout << std::endl;
-    std::cout << "========================================================" << std::endl;
+    // std::cout << "========================================================" << std::endl;
+    // std::cout << "Starting BNT for limit of N=" << numinstances << ", and tuner timeout=" << tuner_timeout << ".\nCurrent CPU time = " << currenttime << ", this run goes until "<< timeout << std::endl;
+    // std::cout << "========================================================" << std::endl;
 
-    unsigned n = scenario.getParamHeader().getNumParam();		// size of chromosomes
-    const unsigned p = 30;	// size of population
-    const double pm = 0.35;		// fraction of population to be replaced by mutants
-    const unsigned MAXT = 4;	// number of threads for parallel decodings
+    Boa *boa = new Boa(*scenario, njobs);
+    boa->run();
 
-    unsigned generation = 0;		// current generation
-    const unsigned MAX_GENS = 100;	// run for 1000 gens
+    //srand(time(NULL));
+    //test_marginal_probability();
+    //test_scenario();
+    //test_boa();
 
-    BOAParameter *boaparam = new BOAParameter(scenario.getParamHeader().getNumParam(), MAX_GENS, p, p, p/2);
-
-    Boa *boa = new Boa(scenario, *boaparam);
-
-
-
-    boa->search();
-
-    //do {
-    //    ++generation;
-    //} while (generation < MAX_GENS);
+    delete boa;
+    delete scenario;
 
     return 0;
 }
+
+// void test_scenario() {
+//     Scenario *scenario = new Scenario("scenario3.txt");
+//     //Population * pop = new Population(*scenario, 16);
+//     delete scenario;
+// }
+
+// void test_boa() {
+//     const Scenario *scenario = new Scenario("scenario.txt");
+//     Boa *boa = new Boa(*scenario, 8);
+//     boa->run();
+
+//     delete boa;
+//     delete scenario;
+// }
+
 

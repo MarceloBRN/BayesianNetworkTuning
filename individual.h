@@ -2,28 +2,25 @@
 #define INDIVIDUAL_H
 
 #include <vector>
-#include <cstring>
-#include <cstdlib>
-#include <ctime>
+#include <cstdint>
 #include <iostream>
-#include <fstream>
-#include "scenario.h"
+
+using namespace std;
 
 class Individual
 {
-public:
-    Individual();
-    Individual(const Scenario &scenario);
+    public:
+        Individual();
+        Individual(const std::vector<size_t> &data, const double &cost);
+        double cost() const;
+        void print(std::ostream &output = std::cout) const;
+        const std::vector<size_t> get_data() const;
 
-    int *individual;
+        virtual ~Individual();
 
-    double calc_fitness(int * &vector);
-
-    double cost;
-
-private:
-
-    Scenario scenario;
+    private:
+        double _cost;
+        std::vector<size_t>_data;
 };
 
 #endif // INDIVIDUAL_H
